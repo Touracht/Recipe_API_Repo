@@ -6,6 +6,8 @@ from .serializers import RegisterSerializer, LoginSerializer, ProfileSerializer,
 from .models import CustomUser
 from .paginations import UsersPagination
 from rest_framework.authtoken.models import Token
+from notifications.models import Notification
+from django.contrib.contenttypes.models import ContentType
 
 @api_view(['POST'])
 def register(request):
@@ -95,18 +97,30 @@ class FollowAPIView(generics.GenericAPIView):
     def post(self, request, username):
         user_to_follow = get_object_or_404(CustomUser, username=username)
 
-        # Prevents the user from following themselves
+    # Prevent the user from following themselves
         if user_to_follow == request.user:
             return Response({'message': 'You cannot follow yourself'}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Checks if the user is already being followed
+        # If already following, provide an option to unfollow
         if request.user.following.filter(username=user_to_follow.username).exists():
             return Response({'message': f'You already follow {user_to_follow.username}'}, status=status.HTTP_400_BAD_REQUEST)
 
         # Add the user to the current user's 'following' list
         request.user.following.add(user_to_follow)
 
+        # Send a notification to the followed user
+        content_type = ContentType.objects.get_for_model(user_to_follow)
+        Notification.objects.create(
+            recipient=user_to_follow,
+            actor=request.user,
+            verb='started following you',
+            content_type=content_type,
+            object_id=user_to_follow.id,
+            read=False
+        )
+
         return Response({'message': f'You are now following {user_to_follow.username}'}, status=status.HTTP_200_OK)
+
 
 class UnfollowAPIView(generics.GenericAPIView):
     serializer_class = FollowingSerializer

@@ -1,13 +1,14 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from rest_framework import viewsets
-from .models import Recipe, RateAndReview
-from .serializers import RecipeSerializer, RateAndReviewSerializer
+from .models import Recipe, RateAndReview, Favorite
+from .serializers import RecipeSerializer, RateAndReviewSerializer, FavoriteSerializer
 from rest_framework import permissions
 from .paginations import RecipePagination, RateAndReviewPagination
 from rest_framework.exceptions import PermissionDenied
 from django.db.models import Q
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework import generics
 
 class RecipeViewSet(viewsets.ModelViewSet):
     """
@@ -105,9 +106,62 @@ class RecipeViewSet(viewsets.ModelViewSet):
         return queryset
 
 class RateAndReviewViewSet(viewsets.ModelViewSet):
+    """
+    Viewset for handling Rating and Reviewing related CRUD operations
+
+    This viewset provides the ability to:
+    - List all reviews (publicly accessible)
+    - Retrieve a specific review (publicly accessible)
+    - Create, update, or delete reviews (only for authenticated users)
+
+    """
     queryset = RateAndReview.objects.all()
     serializer_class = RateAndReviewSerializer
     permission_classes = [permissions.IsAuthenticated]
     pagination_class = RateAndReviewPagination
     
+    def get_permissions(self):
+        """
+        Determine the permissions required for each action.
 
+        - 'list' and 'retrieve' actions are publicly accessible.
+        - All other actions (create, update, delete) require the user to be authenticated.
+        """
+        if self.action in ['list', 'retrieve']:
+            permission_classes = [permissions.AllowAny]
+        else:
+            permission_classes = [permissions.IsAuthenticated]
+        return [permission() for permission in permission_classes]
+    
+class AddToFavoritesView(generics.GenericAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = FavoriteSerializer
+
+    def post(self, request, pk):
+        recipe_to_add_to_favorites = get_object_or_404(Recipe, pk=pk)
+
+        favorite_instance, created = Favorite.objects.get_or_create(user = request.user, recipe = recipe_to_add_to_favorites)
+
+        if created:
+            return Response({'message': 'Recipe added to favorites'}, status=status.HTTP_201_CREATED)
+        else: 
+            return Response({'message': 'Recipe already added to favorites'}, status=status.HTTP_400_BAD_REQUEST)
+        
+class RemoveFromFavoritesView(generics.GenericAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, pk):
+        recipe_to_remove_from_favorites = get_object_or_404(Recipe, pk=pk)
+
+        # Delete the favorite if it exists
+        deleted, _ = Favorite.objects.filter(user=request.user, recipe=recipe_to_remove_from_favorites).delete()
+
+        if deleted == 0:
+            return Response({'message': 'You have not added this recipe to favorites'}, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response({'message': 'Removed recipe from favorites'}, status=status.HTTP_200_OK)
+
+
+
+
+    

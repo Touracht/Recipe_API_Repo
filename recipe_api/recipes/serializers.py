@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Recipe, RateAndReview
+from .models import Recipe, RateAndReview, Favorite
 
 class RecipeSerializer(serializers.ModelSerializer):
     """
@@ -164,3 +164,8 @@ class RateAndReviewSerializer(serializers.ModelSerializer):
         model = RateAndReview
         fields = ['user', 'recipe', 'review', 'rating', 'created_date', 'updated_date']
         read_only_fields = ['created_date', 'updated_date']
+
+class FavoriteSerializer(serializers.ModelSerializer):
+    model = Favorite
+    class Meta:
+        fields = ['user', 'recipe']
