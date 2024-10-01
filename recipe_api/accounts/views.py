@@ -138,3 +138,16 @@ class UnfollowAPIView(generics.GenericAPIView):
         
         return Response({'message': f'You have unfollowed {user_to_unfollow.username}'}, status=status.HTTP_200_OK)
     
+class MarkNotificationAsReadView(generics.GenericAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, pk):
+        notification = get_object_or_404(Notification, pk=pk, recipient=request.user)
+
+        # Check if the notification is already read
+        if not notification.read:
+            notification.read = True
+            notification.save()
+            return Response({"detail": "Notification marked as read."}, status=status.HTTP_200_OK)
+        else:
+            return Response({"detail": "Notification is already read."}, status=status.HTTP_400_BAD_REQUEST)
