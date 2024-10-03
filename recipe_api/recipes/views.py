@@ -107,7 +107,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
 class RateAndReviewViewSet(viewsets.ModelViewSet):
     """
-    Viewset for handling Rating and Reviewing related CRUD operations
+    Viewset for handling Rating and Reviewing related CRUD operations.
 
     This viewset provides the ability to:
     - List all reviews (publicly accessible)
@@ -137,7 +137,7 @@ class AddToFavoritesView(generics.GenericAPIView):
 
     """
     View for handling the addition of recipes to the current user's favorites
-    and returns error if one has already been added 
+    and returns error if one has already been added.
 
     """
     permission_classes = [permissions.IsAuthenticated]
@@ -156,7 +156,7 @@ class AddToFavoritesView(generics.GenericAPIView):
 class RemoveFromFavoritesView(generics.GenericAPIView):
     """
     View for handling the removal of recipes from favorites
-    and returns error if ones has not been added
+    and returns error if ones has not been added.
 
     """
     permission_classes = [permissions.IsAuthenticated]
@@ -173,6 +173,9 @@ class RemoveFromFavoritesView(generics.GenericAPIView):
         return Response({'message': 'Removed recipe from favorites'}, status=status.HTTP_200_OK)
     
 class FollowingFeedView(generics.GenericAPIView):
+    """
+        A view for handling the retrieval of recipes created by the followed users.
+    """
     permission_classes = [permissions.IsAuthenticated]
     pagination_class = FollowingFeedPagination
 
@@ -190,6 +193,9 @@ class FollowingFeedView(generics.GenericAPIView):
             return self.get_paginated_response(serializer.data)
 
 class FavoriteFeedView(generics.GenericAPIView):
+    """
+        A view for handling the retrieval of recipes a current user has added to favorites.
+    """
     permission_classes = [permissions.IsAuthenticated]
     pagination_class = FavoriteFeedPagination
 

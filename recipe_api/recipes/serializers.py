@@ -22,7 +22,7 @@ class RecipeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Recipe
         fields = [
-            'creator', 'title', 'description', 'ingredients', 
+            'creator', 'title', 'picture', 'description', 'ingredients', 
             'instructions', 'category', 'preparation_time', 
             'cooking_time', 'servings', 'created_date', 'updated_date'
         ]
@@ -32,8 +32,8 @@ class RecipeSerializer(serializers.ModelSerializer):
         """
         Validate the title field.
 
-        Args:
-            value: The title of the recipe.
+        Value:
+             The title of the recipe.
 
         Raises:
             serializers.ValidationError: If the title is empty.
@@ -45,12 +45,36 @@ class RecipeSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError('Title cannot be empty')
         return value
     
+    def validate_picture(self, value):
+
+        """
+        Validate the picture field.
+
+        Value:
+            The picture of the recipe.
+
+        Raises:
+            serializers.ValidationError: If the image contains an incorrect format.
+
+        Returns:
+            The validated image. 
+        """
+        #limit file size to 5MB
+        if value.size > 5 * 1024 * 1024:
+            raise serializers.ValidationError("The picture file size must be under 5MB.")
+        
+        # Check for valid image formats (PNG, JPG, JPEG)
+        if not value.name.endswith(('.png', '.jpg', '.jpeg')):
+            raise serializers.ValidationError("Only PNG, JPG and JPEG images are allowed.")
+        
+        return value
+    
     def validate_ingredients(self, value):
         """
         Validate the ingredients field.
 
-        Args:
-            value: The list of ingredients for the recipe.
+        Value:
+            The list of ingredients for the recipe.
 
         Raises:
             serializers.ValidationError: If the ingredients list is empty.
@@ -66,8 +90,8 @@ class RecipeSerializer(serializers.ModelSerializer):
         """
         Validate the instructions field.
 
-        Args:
-            value: The instructions for preparing the recipe.
+        Value:
+             The instructions for preparing the recipe.
 
         Raises:
             serializers.ValidationError: If the instructions are empty.
@@ -83,8 +107,8 @@ class RecipeSerializer(serializers.ModelSerializer):
         """
         Validate the category field.
 
-        Args:
-            value: The category of the recipe.
+        Value:
+             The category of the recipe.
 
         Raises:
             serializers.ValidationError: If no category is chosen.
@@ -100,8 +124,8 @@ class RecipeSerializer(serializers.ModelSerializer):
         """
         Validate the preparation time field.
 
-        Args:
-            value: The preparation time in minutes.
+        Value:
+             The preparation time in minutes.
 
         Raises:
             serializers.ValidationError: If the time is negative.
@@ -117,8 +141,8 @@ class RecipeSerializer(serializers.ModelSerializer):
         """
         Validate the cooking time field.
 
-        Args:
-            value: The cooking time in minutes.
+        Value:
+             The cooking time in minutes.
 
         Raises:
             serializers.ValidationError: If the time is negative.
@@ -134,8 +158,8 @@ class RecipeSerializer(serializers.ModelSerializer):
         """
         Validate the servings field.
 
-        Args:
-            value: The number of servings.
+        Value:
+             The number of servings.
 
         Raises:
             serializers.ValidationError: If servings are less than one.
@@ -166,6 +190,13 @@ class RateAndReviewSerializer(serializers.ModelSerializer):
         read_only_fields = ['created_date', 'updated_date']
 
 class FavoriteSerializer(serializers.ModelSerializer):
+    """
+        Serializer for the Favorite model, handling the addition of recipes to favorites.
+
+        Fields:
+            user: the user to add the recipe to their favorite
+            recipe: the recipe to add to favorites
+    """
     model = Favorite
     class Meta:
         fields = ['user', 'recipe']

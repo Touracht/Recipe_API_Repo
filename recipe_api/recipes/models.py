@@ -21,8 +21,11 @@ CATEGORY_CHOICES = [
 ]
 
 class Recipe(models.Model):
+    """Model for storing recipe data with the provided fields."""
+
     creator = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='recipes')
     title = models.CharField(max_length=50)
+    picture = models.ImageField(upload_to='images/', blank=True, null=True)
     description = models.TextField(max_length=500, blank=True)
     ingredients = models.JSONField()
     instructions = models.TextField()
@@ -42,8 +45,10 @@ class Recipe(models.Model):
         return self.title
 
 class RateAndReview(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE)
+    """Model for storing ratings and review data based on the Recipe model."""
+
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)#OneToMany relationship to the CustomUser model
+    recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE)#OneToMany relationship to the Recipe model
     review = models.TextField(max_length=100, blank=True, null=True)
     rating = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(5)], blank=True, null=True)
     created_date = models.DateTimeField(auto_now_add=True)
@@ -56,8 +61,10 @@ class RateAndReview(models.Model):
         return f"{self.user} reviewed {self.recipe.title} - Rating: {self.rating}"
 
 class Favorite(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE)
+    """Model for storing favorite recipes from the Recipe model."""
+
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)#OneToMany relationship to the CustomUser model
+    recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE)#OneToMany relationship to the Recipe model
 
     class Meta:
         constraints = [
