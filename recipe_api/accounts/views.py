@@ -2,9 +2,9 @@ from django.shortcuts import render, get_object_or_404
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status, permissions, generics
-from .serializers import RegisterSerializer, LoginSerializer, ProfileSerializer, AccountDestroySerializer, FollowingSerializer
+from .serializers import RegisterSerializer, LoginSerializer, ProfileSerializer, AccountDestroySerializer, FollowingSerializer, FollowersSerializer
 from .models import CustomUser
-from .paginations import UsersPagination
+from .paginations import UsersPagination, FollowingAndFollowersPagination
 from rest_framework.authtoken.models import Token
 from notifications.models import Notification
 from django.contrib.contenttypes.models import ContentType
@@ -62,7 +62,7 @@ class ProfileAPIView(generics.RetrieveUpdateAPIView):
     def perform_update(self, serializer):
 
         serializer.save()
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response({'message': 'Profile updated successfully'}, status=status.HTTP_200_OK)
         
 class AccountDestroyAPIView(generics.RetrieveDestroyAPIView):
     serializer_class = AccountDestroySerializer
@@ -107,6 +107,7 @@ class FollowAPIView(generics.GenericAPIView):
 
         # Add the user to the current user's 'following' list
         request.user.following.add(user_to_follow)
+        user_to_follow.followers.add(request.user)
 
         # Send a notification to the followed user
         content_type = ContentType.objects.get_for_model(user_to_follow)
@@ -121,6 +122,23 @@ class FollowAPIView(generics.GenericAPIView):
 
         return Response({'message': f'You are now following {user_to_follow.username}'}, status=status.HTTP_200_OK)
 
+class FollowingAPIView(generics.ListAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = FollowingSerializer
+    pagination_class = FollowingAndFollowersPagination
+
+    def get_queryset(self):
+        user = self.request.user
+        return user.following.all()
+    
+class FollowersAPIView(generics.ListAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = FollowersSerializer
+    pagination_class = FollowingAndFollowersPagination
+
+    def get_queryset(self):
+        user = self.request.user
+        return user.followers.all()
 
 class UnfollowAPIView(generics.GenericAPIView):
     serializer_class = FollowingSerializer

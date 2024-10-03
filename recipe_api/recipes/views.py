@@ -3,7 +3,7 @@ from rest_framework import viewsets
 from .models import Recipe, RateAndReview, Favorite
 from .serializers import RecipeSerializer, RateAndReviewSerializer, FavoriteSerializer
 from rest_framework import permissions
-from .paginations import RecipePagination, RateAndReviewPagination
+from .paginations import RecipePagination, RateAndReviewPagination, FollowingFeedPagination, FavoriteFeedPagination
 from rest_framework.exceptions import PermissionDenied
 from django.db.models import Q
 from rest_framework.response import Response
@@ -134,6 +134,12 @@ class RateAndReviewViewSet(viewsets.ModelViewSet):
         return [permission() for permission in permission_classes]
     
 class AddToFavoritesView(generics.GenericAPIView):
+
+    """
+    View for handling the addition of recipes to the current user's favorites
+    and returns error if one has already been added 
+
+    """
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = FavoriteSerializer
 
@@ -148,6 +154,11 @@ class AddToFavoritesView(generics.GenericAPIView):
             return Response({'message': 'Recipe already added to favorites'}, status=status.HTTP_400_BAD_REQUEST)
         
 class RemoveFromFavoritesView(generics.GenericAPIView):
+    """
+    View for handling the removal of recipes from favorites
+    and returns error if ones has not been added
+
+    """
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request, pk):
@@ -160,6 +171,40 @@ class RemoveFromFavoritesView(generics.GenericAPIView):
             return Response({'message': 'You have not added this recipe to favorites'}, status=status.HTTP_400_BAD_REQUEST)
 
         return Response({'message': 'Removed recipe from favorites'}, status=status.HTTP_200_OK)
+    
+class FollowingFeedView(generics.GenericAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+    pagination_class = FollowingFeedPagination
+
+    def get(self, request):
+        user = request.user
+        following_users = user.following.all()  
+
+        #Filter recipes from followed users
+        recipes = Recipe.objects.filter(creator__in=following_users).order_by('-updated_date')
+        
+        # Paginate the queryset
+        page = self.paginate_queryset(recipes)
+        if page is not None:
+            serializer = RecipeSerializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+class FavoriteFeedView(generics.GenericAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+    pagination_class = FavoriteFeedPagination
+
+    def get(self, request):
+        user = request.user
+        favorite_recipes = Favorite.objects.filter(user=user).values_list('recipe')
+        
+        # Filter recipes that the user has favorited
+        recipes = Recipe.objects.filter(id__in=favorite_recipes).order_by('-updated_date')
+
+        # Paginate the queryset
+        page = self.paginate_queryset(recipes)
+        if page is not None:
+            serializer = RecipeSerializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
 
 
 

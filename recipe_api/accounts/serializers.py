@@ -58,16 +58,14 @@ class LoginSerializer(serializers.Serializer):
         }
        
 class ProfileSerializer(serializers.ModelSerializer):
+    followers_count = serializers.SerializerMethodField()
+
     class Meta:
         model = get_user_model()
-        fields = ['username', 'email', 'profile_picture', 'followers']
+        fields = ['username', 'profile_picture', 'followers_count'] 
 
-    def to_representation(self, instance):
-        # Call the superclass method to get the default representation from the class(Uses Inheritance)
-        representation = super().to_representation(instance)
-        representation['message'] = 'Updated successfully'
-
-        return representation
+    def get_followers_count(self, obj):
+        return obj.followers.count()
 
 class AccountDestroySerializer(serializers.ModelSerializer):
     class Meta:
@@ -75,6 +73,11 @@ class AccountDestroySerializer(serializers.ModelSerializer):
         fields = ['username']
 
 class FollowingSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = get_user_model()
+        fields = ['username', 'profile_picture']
+
+class FollowersSerializer(serializers.ModelSerializer):
     class Meta:
         model = get_user_model()
         fields = ['username', 'profile_picture']

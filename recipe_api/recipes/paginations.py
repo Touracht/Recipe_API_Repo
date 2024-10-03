@@ -5,3 +5,9 @@ class RecipePagination(PageNumberPagination):
 
 class RateAndReviewPagination(PageNumberPagination):
     page_size = 30
+
+class FollowingFeedPagination(PageNumberPagination):
+    page_size = 20
+
+class FavoriteFeedPagination(PageNumberPagination):
+    page_size = 20
