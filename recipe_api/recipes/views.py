@@ -104,6 +104,22 @@ class RecipeViewSet(viewsets.ModelViewSet):
             queryset = queryset.filter(preparation_time__lte=preparation_time)
 
         return queryset
+    
+class RecipeAndReviewsListView(generics.ListCreateAPIView):
+    """
+        The viewset for handling the retrieval of reviews for a specific recipe.
+    """
+    serializer_class = RateAndReviewSerializer
+
+    def get_queryset(self):
+        """
+        This method retrieves the list of reviews for a specific recipe based on the 'recipe_id'
+        from the URL.
+        """
+        
+        recipe_id = self.kwargs['recipe_id']
+        return RateAndReview.objects.filter(recipe_id=recipe_id)
+
 
 class RateAndReviewViewSet(viewsets.ModelViewSet):
     """
