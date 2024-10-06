@@ -23,12 +23,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
 
-SECRET_KEY = 'django-insecure-cork)%1=wl!x^h4d(l)ah&dj*9pp$0e321=@4@!+0uohu=lk18'
+SECRET_KEY = os.getenv('django-insecure-cork)%1=wl!x^h4d(l)ah&dj*9pp$0e321=@4@!+0uohu=lk18')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['tebogo.pythonanywhere.com']
 
 
 # Application definition
@@ -127,7 +127,10 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
-STATIC_URL = 'static/'
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
@@ -142,27 +145,27 @@ REST_FRAMEWORK = {
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL='accounts.CustomUser'
 
-#The following are security based: 
+# The following are security based: 
 
 # Enable the browser XSS filter
-# SECURE_BROWSER_XSS_FILTER = True
+SECURE_BROWSER_XSS_FILTER = True
 
 # Enable the X-Frame-Options header
-# X_FRAME_OPTIONS = 'DENY'  # Prevents your site from being displayed in an iframe
+X_FRAME_OPTIONS = 'DENY'  # Prevents your site from being displayed in an iframe
 
 # Enable the Content-Type nosniff
-# SECURE_CONTENT_TYPE_NOSNIFF = True
+SECURE_CONTENT_TYPE_NOSNIFF = True
 
 # Redirect HTTP to HTTPS
-# SECURE_SSL_REDIRECT = True  # Ensure you have SSL/TLS configured
+SECURE_SSL_REDIRECT = True  # Ensure you have SSL/TLS configured
 
 # Use a secure session cookie
-# SESSION_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
 
 # Set the X-Content-Type-Options header
-# SECURE_CONTENT_TYPE_NOSNIFF = True
+SECURE_CONTENT_TYPE_NOSNIFF = True
 
 # Enable HTTP Strict Transport Security (HSTS)
-# SECURE_HSTS_SECONDS = 31536000  # One year
-# SECURE_HSTS_INCLUDE_SUBDOMAINS = True
-# SECURE_HSTS_PRELOAD = True
+SECURE_HSTS_SECONDS = 31536000  # One year
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+SECURE_HSTS_PRELOAD = True
