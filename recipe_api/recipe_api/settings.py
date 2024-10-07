@@ -87,7 +87,7 @@ DATABASES = {
         'NAME': 'recipe_database',
         'USER': 'root',
         'PASSWORD': '2023202425',
-        'HOST': 'localhost',
+        'HOST': 'tebogo.mysql.pythonanywhere-services.com',
         'PORT': '3306',
     }
 }
