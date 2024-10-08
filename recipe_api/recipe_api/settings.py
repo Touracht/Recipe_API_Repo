@@ -28,7 +28,7 @@ SECRET_KEY = os.getenv('django-insecure-cork)%1=wl!x^h4d(l)ah&dj*9pp$0e321=@4@!+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['tebogo.pythonanywhere.com']
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
