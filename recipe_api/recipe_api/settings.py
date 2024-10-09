@@ -83,15 +83,13 @@ WSGI_APPLICATION = 'recipe_api.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'recipe_database',
-        'USER': 'root',
-        'PASSWORD': '2023202425',
-        'HOST': 'localhost',
-        'PORT': '3306',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'recipe_db',  
+        'USER': 'postgres',  
+        'PASSWORD': '2023202425',  
+        'PORT': '5432',
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
